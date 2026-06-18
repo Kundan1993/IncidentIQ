@@ -1,0 +1,110 @@
+[
+  {
+    "id": "INC-101",
+    "title": "Checkout API returning 500s after deploy",
+    "description": "Error rate on /checkout jumped to 40% right after release v2.31. Logs show NullPointerException in PaymentService.",
+    "severity": "P1",
+    "category": "application",
+    "resolution": "Rolled back deployment v2.31 to v2.30. Error rate recovered in 4 minutes. Root cause was a null config value.",
+    "resolved_at": "2025-03-12T14:22:00Z"
+  },
+  {
+    "id": "INC-102",
+    "title": "Postgres connection pool exhausted",
+    "description": "FATAL: remaining connection slots are reserved. App timeouts across all services. Connection count pinned at max_connections.",
+    "severity": "P1",
+    "category": "database",
+    "resolution": "Terminated idle-in-transaction sessions and restarted app pods to release leaked connections. Added PgBouncer afterwards.",
+    "resolved_at": "2025-04-02T09:10:00Z"
+  },
+  {
+    "id": "INC-103",
+    "title": "Pods OOMKilled in payments namespace",
+    "description": "payments-worker pods restarting every few minutes with reason OOMKilled. Memory limit 512Mi being hit under load.",
+    "severity": "P2",
+    "category": "infra",
+    "resolution": "Raised memory limit to 1Gi and scaled replicas from 3 to 5. Restarts stopped.",
+    "resolved_at": "2025-04-18T17:45:00Z"
+  },
+  {
+    "id": "INC-104",
+    "title": "DNS resolution failures to internal services",
+    "description": "Intermittent 'could not resolve host' errors. CoreDNS pods showing high CPU and dropped queries.",
+    "severity": "P2",
+    "category": "network",
+    "resolution": "Restarted wedged CoreDNS pods and scaled the deployment. Resolution recovered immediately.",
+    "resolved_at": "2025-05-01T11:30:00Z"
+  },
+  {
+    "id": "INC-105",
+    "title": "TLS certificate expired on api.example.com",
+    "description": "Clients getting 'certificate has expired'. Handshake failures on the public ingress.",
+    "severity": "P1",
+    "category": "network",
+    "resolution": "Renewed the certificate and reloaded the ingress. Added a 30-day expiry alert to prevent recurrence.",
+    "resolved_at": "2025-05-09T06:05:00Z"
+  },
+  {
+    "id": "INC-106",
+    "title": "Disk full on logging node",
+    "description": "no space left on device on node-7. Log shipping failed and writes started erroring.",
+    "severity": "P3",
+    "category": "infra",
+    "resolution": "Rotated and shipped old logs, pruned unused container images, then expanded the volume.",
+    "resolved_at": "2025-05-15T22:00:00Z"
+  },
+  {
+    "id": "INC-107",
+    "title": "Redis high CPU causing slow responses",
+    "description": "Redis at 95% CPU, p99 latency on cart service degraded. A hot key was being scanned repeatedly.",
+    "severity": "P2",
+    "category": "database",
+    "resolution": "Identified the hot key with a full scan, added caching at the app layer, and the CPU dropped back to normal.",
+    "resolved_at": "2025-05-20T13:12:00Z"
+  },
+  {
+    "id": "INC-108",
+    "title": "Slow queries after missing index",
+    "description": "Reporting dashboard timing out. pg_stat_statements shows one query doing a sequential scan on a 20M row table.",
+    "severity": "P3",
+    "category": "database",
+    "resolution": "Added an index on the filter column. Query time dropped from 12s to 80ms.",
+    "resolved_at": "2025-05-28T10:40:00Z"
+  },
+  {
+    "id": "INC-109",
+    "title": "Rate limit errors from payment provider",
+    "description": "429 Too Many Requests from upstream payment API during a flash sale. Retries made it worse.",
+    "severity": "P2",
+    "category": "application",
+    "resolution": "Added exponential backoff and a short-lived cache, and requested a higher quota from the provider.",
+    "resolved_at": "2025-06-01T19:25:00Z"
+  },
+  {
+    "id": "INC-110",
+    "title": "Network partition between AZs",
+    "description": "Cross-AZ traffic dropping, replicas marked unhealthy. Brief split-brain on the cache cluster.",
+    "severity": "P1",
+    "category": "network",
+    "resolution": "Failed over to the healthy AZ and let the partition heal. Adjusted health-check thresholds afterwards.",
+    "resolved_at": "2025-06-07T03:50:00Z"
+  },
+  {
+    "id": "INC-111",
+    "title": "Memory leak in notification service",
+    "description": "notification-svc memory climbs steadily over ~6 hours until OOM and restart. Repeats daily.",
+    "severity": "P3",
+    "category": "application",
+    "resolution": "Captured a heap profile, found an unbounded queue, shipped a fix to cap it. Restarted to restore capacity meanwhile.",
+    "resolved_at": "2025-06-10T08:15:00Z"
+  },
+  {
+    "id": "INC-112",
+    "title": "Scheduled maintenance reminder",
+    "description": "Informational: database maintenance window scheduled for Saturday 02:00 UTC. No action needed now.",
+    "severity": "P4",
+    "category": "database",
+    "resolution": "Acknowledged. Posted reminder to the ops channel.",
+    "resolved_at": "2025-06-11T12:00:00Z"
+  }
+]
