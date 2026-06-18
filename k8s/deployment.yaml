@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: incidentiq
+  labels:
+    app: incidentiq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: incidentiq
+  template:
+    metadata:
+      labels:
+        app: incidentiq
+    spec:
+      containers:
+        - name: api
+          image: incidentiq:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: OLLAMA_BASE_URL
+              value: "http://ollama:11434"
+            - name: OLLAMA_MODEL
+              value: "llama3.1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: incidentiq
+spec:
+  selector:
+    app: incidentiq
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: ClusterIP
